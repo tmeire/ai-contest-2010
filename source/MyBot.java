@@ -1,4 +1,11 @@
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+
+/**
+ * @author blackskad
+ */
 public class MyBot {
 	// The DoTurn function is where your code goes. The PlanetWars object
 	// contains the state of the game, including information about all planets
@@ -11,7 +18,7 @@ public class MyBot {
 	// your own. Check out the tutorials and articles on the contest website at
 	// http://www.ai-contest.com/resources.
 
-	public static void DoTurn(PlanetWars pw) {
+	public static void doTurn(PlanetWars pw) {
 		// (1) If we currently have a fleet in flight, just do nothing.
 		if (pw.MyFleets().size() >= 1) {
 			return;
@@ -46,25 +53,19 @@ public class MyBot {
 
 	public static void main(String[] args) {
 		String line = "";
-		String message = "";
-		int c;
+		StringBuilder message = new StringBuilder();
+
 		try {
-			while ((c = System.in.read()) >= 0) {
-				switch (c) {
-					case '\n':
-						if (line.equals("go")) {
-							PlanetWars pw = new PlanetWars(message);
-							DoTurn(pw);
-							pw.FinishTurn();
-							message = "";
-						} else {
-							message += line + "\n";
-						}
-						line = "";
-						break;
-					default:
-						line += (char) c;
-						break;
+			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+			while ((line = reader.readLine()) != null) {
+				if (line.equals("go")) {
+					PlanetWars pw = new PlanetWars(message.toString());
+					doTurn(pw);
+					pw.finishTurn();
+					message = new StringBuilder();
+				} else {
+					message.append(line);
+					message.append("\n");
 				}
 			}
 		} catch (Exception e) {

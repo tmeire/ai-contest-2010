@@ -174,7 +174,7 @@ public class PlanetWars {
 
 	// Sends the game engine a message to let it know that we're done sending
 	// orders. This signifies the end of our turn.
-	public void FinishTurn() {
+	public void finishTurn() {
 		System.out.println("go");
 		System.out.flush();
 	}

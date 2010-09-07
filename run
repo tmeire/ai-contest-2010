@@ -1,0 +1,1 @@
+java -jar tools/PlayGame.jar maps/map7.txt 1000 1000 log.txt "java -jar dist/ai-contest-2010.jar" "java -jar example_bots/$1.jar" | java -jar tools/ShowGame.jar

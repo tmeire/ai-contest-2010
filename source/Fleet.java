@@ -68,6 +68,14 @@ public class Fleet implements Comparable, Cloneable {
 	}
 
 	@Override
+	public boolean equals (Object o) {
+		Fleet f = (Fleet) o;
+		return  f.sourcePlanet == sourcePlanet &&
+				f.destinationPlanet == destinationPlanet &&
+				f.numShips == numShips;
+	}
+
+	@Override
 	public int compareTo(Object o) {
 		Fleet f = (Fleet) o;
 		return this.numShips - f.numShips;

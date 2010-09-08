@@ -10,7 +10,6 @@ import java.util.TreeSet;
 // helper code that does the boring stuff for you, so you can focus on the
 // interesting stuff. That being said, you're welcome to change anything in
 // this file if you know what you're doing.
-
 public class PlanetWars {
 	// Constructs a PlanetWars object instance, given a string containing a
 	// description of a game state.
@@ -18,6 +17,11 @@ public class PlanetWars {
 	public PlanetWars(String gameStateString) {
 		planets = new ArrayList<Planet>();
 		fleets = new ArrayList<Fleet>();
+
+		neutral = new Player(0);
+		local = new Player(1);
+		remote = new Player(2);
+
 		ParseGameState(gameStateString);
 	}
 
@@ -138,63 +142,6 @@ public class PlanetWars {
 		return (int) Math.ceil(Math.sqrt(dx * dx + dy * dy));
 	}
 
-	// Sends an order to the game engine. An order is composed of a source
-	// planet number, a destination planet number, and a number of ships. A
-	// few things to keep in mind:
-	//   * you can issue many orders per turn if you like.
-	//   * the planets are numbered starting at zero, not one.
-	//   * you must own the source planet. If you break this rule, the game
-	//     engine kicks your bot out of the game instantly.
-	//   * you can't move more ships than are currently on the source planet.
-	//   * the ships will take a few turns to reach their destination. Travel
-	//     is not instant. See the Distance() function for more info.
-	public void IssueOrder(int sourcePlanet,
-			int destinationPlanet,
-			int numShips) {
-		System.out.println("" + sourcePlanet + " " + destinationPlanet + " "
-				+ numShips);
-		System.out.flush();
-	}
-
-	// Sends an order to the game engine. An order is composed of a source
-	// planet number, a destination planet number, and a number of ships. A
-	// few things to keep in mind:
-	//   * you can issue many orders per turn if you like.
-	//   * the planets are numbered starting at zero, not one.
-	//   * you must own the source planet. If you break this rule, the game
-	//     engine kicks your bot out of the game instantly.
-	//   * you can't move more ships than are currently on the source planet.
-	//   * the ships will take a few turns to reach their destination. Travel
-	//     is not instant. See the Distance() function for more info.
-	public void IssueOrder(Planet source, Planet dest, int numShips) {
-		System.out.println("" + source.PlanetID() + " " + dest.PlanetID()
-				+ " " + numShips);
-		System.out.flush();
-	}
-
-	// Sends the game engine a message to let it know that we're done sending
-	// orders. This signifies the end of our turn.
-	public void finishTurn() {
-		System.out.println("go");
-		System.out.flush();
-	}
-
-	// Returns true if the named player owns at least one planet or fleet.
-	// Otherwise, the player is deemed to be dead and false is returned.
-	public boolean IsAlive(int playerID) {
-		for (Planet p : planets) {
-			if (p.Owner() == playerID) {
-				return true;
-			}
-		}
-		for (Fleet f : fleets) {
-			if (f.Owner() == playerID) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	// If the game is not yet over (ie: at least two players have planets or
 	// fleets remaining), returns -1. If the game is over (ie: only one player
 	// is left) then that player's number is returned. If there are no
@@ -223,7 +170,7 @@ public class PlanetWars {
 		int numShips = 0;
 		for (Planet p : planets) {
 			if (p.Owner() == playerID) {
-				numShips += p.NumShips();
+				numShips += p.getCapacity();
 			}
 		}
 		for (Fleet f : fleets) {
@@ -232,6 +179,30 @@ public class PlanetWars {
 			}
 		}
 		return numShips;
+	}
+
+	/**
+	 * While 'neutral' is not an active player (it doesn't send out ships), it
+	 * does own some planets. We're keeping it here to manage those unowned planets.
+	 */
+	private Player neutral;
+
+	/** The local player (i.e. this bot) */
+	private Player local;
+
+	/** The remote player, a collection of all enemies */
+	private Player remote;
+
+	public Player getNeutralPlayer() {
+		return neutral;
+	}
+
+	public Player getLocalPlayer() {
+		return local;
+	}
+
+	public Player getRemotePlayer() {
+		return remote;
 	}
 
 	// Parses a game state from a string. On success, returns 1. On failure,
@@ -269,6 +240,17 @@ public class PlanetWars {
 						growthRate,
 						x, y);
 				planets.add(p);
+				switch (owner) {
+					case 0: /* 'neutral' player has id 0 */
+						neutral.addPlanet(p);
+						break;
+					case 1: /* local player has id 1 */
+						local.addPlanet(p);
+						break;
+					default: /* enemies have id 2 or larger */
+						remote.addPlanet(p);
+						break;
+				}
 			} else if (tokens[0].equals("F")) {
 				if (tokens.length != 7) {
 					return 0;
@@ -286,6 +268,17 @@ public class PlanetWars {
 						totalTripLength,
 						turnsRemaining);
 				fleets.add(f);
+				switch (owner) {
+					case 0: /* 'neutral' player has id 0 */
+						neutral.addFleet(f);
+						break;
+					case 1: /* local player has id 1 */
+						local.addFleet(f);
+						break;
+					default: /* enemies have id 2 or larger */
+						remote.addFleet(f);
+						break;
+				}
 			} else {
 				return 0;
 			}
@@ -321,5 +314,7 @@ public class PlanetWars {
 	// Store all the planets and fleets. OMG we wouldn't wanna lose all the
 	// planets and fleets, would we!?
 	private ArrayList<Planet> planets;
+
 	private ArrayList<Fleet> fleets;
+
 }

@@ -1,5 +1,5 @@
 
-public class Planet implements Cloneable {
+public class Planet implements Cloneable, Comparable {
 
 	// Initializes a planet.
 	public Planet(int planetID,
@@ -26,7 +26,7 @@ public class Planet implements Cloneable {
 		return owner;
 	}
 
-	public int NumShips() {
+	public int getCapacity() {
 		return numShips;
 	}
 
@@ -76,5 +76,27 @@ public class Planet implements Cloneable {
 	@Override
 	public Object clone() {
 		return new Planet(this);
+	}
+
+	/**
+	 * Equality is based on planetID
+	 * @param o
+	 * @return
+	 */
+	@Override
+	public boolean equals (Object o) {
+		Planet p = (Planet) o;
+		return p.planetID == planetID;
+	}
+
+	/**
+	 * Natural ordening is based on number of available ships
+	 * @param t
+	 * @return
+	 */
+	@Override
+	public int compareTo(Object t) {
+		Planet p = (Planet) t;
+		return numShips - p.numShips;
 	}
 }
